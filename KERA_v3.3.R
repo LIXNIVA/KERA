@@ -303,14 +303,14 @@ app_css <- "
     align-items: center;
     background: #162d4a;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding: 6px 20px;
+    padding: 9px 20px;
   }
   .kera-subheader-left { display:flex; align-items:center; gap:10px; }
   .kera-subheader-title {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.5px;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.82);
+    letter-spacing: 0.3px;
     font-family: 'Segoe UI', sans-serif;
   }
   .kera-aop-link {
@@ -320,7 +320,7 @@ app_css <- "
   }
   .kera-aop-link:hover { color: #fff !important; }
   .kera-manual-btn {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 1px;
     background: rgba(255,255,255,0.1);
@@ -337,11 +337,11 @@ app_css <- "
   /* ── Footer ── */
   .kera-footer {
     text-align: center;
-    padding: 14px 20px;
+    padding: 18px 20px;
     background: #f8f9fb;
     border-top: 1px solid #e2e6ed;
-    font-size: 11px;
-    color: #6b7280;
+    font-size: 18px;
+    color: #4b5563;
     font-family: 'Segoe UI', sans-serif;
   }
   .kera-footer a {
@@ -500,7 +500,7 @@ server <- function(input, output, session) {
       div(style = "text-align:center; margin:24px 0 8px 0;",
           tags$img(
             src   = "www_static/KERA.png",
-            style = "max-width:280px; width:50%; height:auto; opacity:0.92;"
+            style = "max-width:420px; width:70%; height:auto; opacity:0.92;"
           )
       )
     }

@@ -22,8 +22,7 @@ jobs:
 
       - name: Install R packages
         run: |
-          Rscript -e 'install.packages("rsconnect", repos="https://cran.rstudio.com/")'
-          Rscript -e 'install.packages("shiny", repos="https://cran.rstudio.com/")'
+          Rscript -e 'install.packages(c("rsconnect", "shiny", "httr", "jsonlite", "readxl", "writexl", "DT", "dplyr", "plotly", "ggplot2", "purrr"), repos="https://cran.rstudio.com/")'
           Rscript -e 'library(rsconnect); cat("rsconnect loaded OK\n")'
 
       - name: Deploy to shinyapps.io

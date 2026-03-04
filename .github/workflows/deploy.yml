@@ -38,5 +38,5 @@ jobs:
               token  = Sys.getenv("SHINYAPPS_TOKEN"),
               secret = Sys.getenv("SHINYAPPS_SECRET")
             )
-            rsconnect::deployApp(appName = "KERA")
+            rsconnect::deployApp(appName = "KERA", forceUpdate = TRUE)
           '

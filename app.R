@@ -1,2 +1,2 @@
 source("KERA.R")
-# deploy
+shinyApp(ui = ui, server = server)

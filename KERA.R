@@ -96,31 +96,65 @@ dl_bar_ui <- function(tiff_id, jpg_id) {
 # CLAUDE EVALUATION
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 evaluate_abstract <- function(abstract_text, api_key) {
   url <- "https://api.anthropic.com/v1/messages"
   prompt <- paste0(
     "You are a scientific literature analyst specializing in toxicology and epidemiology. ",
-    "Evaluate the following abstract and perform two tasks:\n\n",
-    "TASK 1 — Concordance probabilities (0-100): Estimate the probability that the FULL TEXT paper ",
-    "will provide empirical evidence for each of the three types of concordance:\n",
-    "1. Dose-Response Concordance: Greater exposure leads to greater effect (clear dose gradient).\n",
-    "2. Temporal Concordance: Exposure precedes outcome in time (time-course or sequential data).\n",
-    "3. Incidence Concordance: Exposure rates align with disease/outcome rates across populations.\n\n",
-    "TASK 2 — Extract the following if present in the abstract (use null if not mentioned):\n",
-    "- stressor: The chemical(s) or non-chemical stressor(s) studied ",
-    "(e.g. chemical name, radiation, temperature, hypoxia, UV, nanoparticles). ",
-    "If multiple, separate with semicolons. Use null if none mentioned.\n",
-    "- species: The organism(s) or taxa studied ",
-    "(e.g. Mytilus galloprovincialis, Danio rerio, human, rat, Arabidopsis). ",
-    "If multiple, separate with semicolons. Use null if none mentioned.\n\n",
+    "Evaluate the following abstract using the strict scoring rubrics below, then extract stressor and species.\n\n",
+    
+    "=== TASK 1: CONCORDANCE SCORING (integer 0-100) ===\n",
+    "Score each concordance type based ONLY on evidence signals present in the abstract. ",
+    "Do not infer or assume what the full text might contain beyond what is described.\n\n",
+    
+    "1. DOSE-RESPONSE CONCORDANCE\n",
+    "Definition: Evidence that greater exposure leads to greater biological effect (monotonic dose gradient).\n",
+    "Scoring rubric:\n",
+    "  80-100: Multiple dose/concentration levels tested with a clear monotonic gradient explicitly reported ",
+    "(e.g. low/medium/high dose groups, EC50/LC50 curves, benchmark dose modelling).\n",
+    "  50-79:  Some dose levels mentioned but gradient is unclear, non-monotonic, or only two dose levels compared.\n",
+    "  20-49:  Single dose or exposure level used; no dose-response design; effect reported at one concentration only.\n",
+    "  0-19:   No dose information present; purely correlational, observational with no exposure quantification, ",
+    "or in silico/review study with no original dose data.\n\n",
+    
+    "2. TEMPORAL CONCORDANCE\n",
+    "Definition: Evidence that exposure precedes the outcome in time; time-course or sequential data are reported.\n",
+    "Scoring rubric:\n",
+    "  80-100: Explicit time-course measurements at multiple time points; latency periods reported; ",
+    "longitudinal or prospective design with clear temporal sequence of exposure then effect.\n",
+    "  50-79:  Exposure timing is mentioned and precedes outcome, but only one or two time points measured; ",
+    "or retrospective design with documented exposure history.\n",
+    "  20-49:  Cross-sectional design; timing implied but not directly measured; acute single-timepoint study.\n",
+    "  0-19:   No temporal information; simultaneous measurement of exposure and outcome; ",
+    "or purely mechanistic/in silico study with no time dimension.\n\n",
+    
+    "3. INCIDENCE CONCORDANCE\n",
+    "Definition: Evidence that exposure rates align with disease or outcome rates across populations or groups.\n",
+    "Scoring rubric:\n",
+    "  80-100: Population-level incidence, prevalence, or morbidity/mortality rates explicitly compared across ",
+    "high- vs low-exposure groups or geographic areas with different exposure levels.\n",
+    "  50-79:  Group-level differences in outcome frequency reported (e.g. % affected per group) but not ",
+    "formally expressed as incidence rates; or ecological study with indirect exposure proxies.\n",
+    "  20-49:  Single population studied with no unexposed comparison; effect reported as mean difference ",
+    "rather than incidence; animal study comparing groups but not epidemiological in design.\n",
+    "  0-19:   No population or incidence data; purely mechanistic, cellular, or in vitro study; ",
+    "individual-level data only with no group comparison.\n\n",
+    
+    "=== TASK 2: EXTRACTION ===\n",
+    "- stressor: Chemical(s) or non-chemical stressor(s) studied (e.g. compound name, radiation, ",
+    "temperature, hypoxia, UV, nanoparticles, noise). Separate multiple with semicolons. null if absent.\n",
+    "- species: Organism(s) or taxa studied (e.g. Mytilus galloprovincialis, Danio rerio, human, rat). ",
+    "Separate multiple with semicolons. null if absent.\n",
+    "- note: One sentence (max 25 words) citing the specific abstract evidence that drove your scores.\n\n",
+    
     "Return ONLY a valid JSON object with exactly six keys. No markdown, no code fences.\n",
     "Example:\n",
-    "{\"dose_response\":75,\"temporal\":60,\"incidence\":30,",
-    "\"note\":\"Wide dose range tested; short 2-3 day window; lab study only.\",",
+    "{\"dose_response\":82,\"temporal\":55,\"incidence\":15,",
+    "\"note\":\"Three dose levels with monotonic DNA adduct increase; single 48h timepoint; lab study only.\",",
     "\"stressor\":\"benzo[a]pyrene\",\"species\":\"Mytilus galloprovincialis\"}\n\n",
     "Abstract:\n", abstract_text
   )
-  payload <- list(model="claude-haiku-4-5-20251001", max_tokens=300,
+  payload <- list(model="claude-haiku-4-5-20251001", max_tokens=400,
                   messages=list(list(role="user", content=prompt)))
   tryCatch({
     res      <- POST(url,
